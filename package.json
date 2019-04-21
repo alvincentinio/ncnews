@@ -9,7 +9,9 @@
     "migrate-latest": "knex migrate:latest",
     "migrate-rollback": "knex migrate:rollback",
     "test": "mocha ./spec/*.spec.js",
-    "seed": "knex seed:run",
+    "seed": "knex seed:run && NODE_ENV=test knex seed:run",
+    "seed-dev": "npm run setup-dbs && knex seed:run",
+    "seed-test": "npm run setup-dbs && NODE_ENV=test knex seed:run",
     "dev": "nodemon listen.js",
     "start": "node listen.js"
   },
