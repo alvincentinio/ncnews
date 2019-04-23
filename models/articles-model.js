@@ -1,6 +1,5 @@
 const connection = require("../db/connection");
 
-// NEEDS TO NOT DISPLAY BODY & ADD COUNT
 exports.fetchAllArticles = ({ author, topic, sort_by, order }) => {
   return connection
     .select(
@@ -22,7 +21,6 @@ exports.fetchAllArticles = ({ author, topic, sort_by, order }) => {
     });
 };
 
-// NEED TO ADD COUNT
 exports.fetchArticleById = articleId => {
   return connection
     .select(
@@ -39,5 +37,21 @@ exports.fetchArticleById = articleId => {
     .where("articles.article_id", "=", articleId)
     .leftJoin("comments", "comments.article_id", "=", "articles.article_id")
     .groupBy("articles.article_id")
+    .returning("*");
+};
+
+exports.updateArticleVotesById = (article_id, inc_votes) => {
+  return connection("articles")
+    .where("article_id", "=", article_id)
+    .increment("votes", inc_votes)
+    .returning("*");
+};
+
+exports.fetchCommentsByArticleId = (articleId, sort_by, order) => {
+  return connection
+    .select("*")
+    .from("comments")
+    .where("comments.article_id", "=", articleId)
+    .orderBy(sort_by || "created_at", order || "desc")
     .returning("*");
 };
