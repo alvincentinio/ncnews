@@ -109,6 +109,8 @@ describe.only("/", () => {
           );
         });
     });
+  });
+  describe("/api/articles/:article_id/comments", () => {
     it("GET - status(200) - /:article_id/comments responds with an array of comments by article_id", () => {
       return request
         .get("/api/articles/1/comments")
@@ -131,6 +133,51 @@ describe.only("/", () => {
             "created_at"
           );
           expect(body[0].votes).to.equal(14);
+        });
+    });
+    xit("POST - status(200) - /:article_id/comments - posts new comment by article_id - responds with posted comment", () => {
+      const newComment = {
+        username: "al",
+        body: "test body"
+      };
+      return request
+        .post("/api/articles/1/comments")
+        .send(newComment)
+        .expect(200)
+        .then(({ body }) => {
+          // console.log(body);
+          expect(body).to.contain.keys(
+            "comment_id",
+            "article_id",
+            "votes",
+            "body",
+            "author",
+            "created_at"
+          );
+          expect(body.article_id).to.equal(1);
+          expect(body.votes).to.equal(0);
+          expect(body.body).to.equal("test body");
+          expect(body.author).to.equal("al");
+        });
+    });
+  });
+  describe('"/api/comments/:comment_id', () => {
+    it("PATCH - status(200) - /:comment_id accepts a body of inc_votes and returns updated comment", () => {
+      return request
+        .patch("/api/comments/1")
+        .send({ inc_votes: 2 })
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comment.votes).to.equal(18);
+          expect(body.comment.author).to.equal("butter_bridge");
+        });
+    });
+    it("DELETE - status(204) - /:comment_id - deletes a comment by Id", () => {
+      return request
+        .delete("/api/comments/1")
+        .expect(204)
+        .then(({ body }) => {
+          expect(body.comment).to.be.undefined;
         });
     });
   });

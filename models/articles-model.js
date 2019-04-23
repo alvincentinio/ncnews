@@ -40,9 +40,9 @@ exports.fetchArticleById = articleId => {
     .returning("*");
 };
 
-exports.updateArticleVotesById = (article_id, inc_votes) => {
+exports.updateArticleVotesById = (articleId, inc_votes) => {
   return connection("articles")
-    .where("article_id", "=", article_id)
+    .where("article_id", "=", articleId)
     .increment("votes", inc_votes)
     .returning("*");
 };
@@ -53,5 +53,17 @@ exports.fetchCommentsByArticleId = (articleId, sort_by, order) => {
     .from("comments")
     .where("comments.article_id", "=", articleId)
     .orderBy(sort_by || "created_at", order || "desc")
+    .returning("*");
+};
+
+exports.createCommentByArticleId = (articleId, username, body) => {
+  const commentToInsert = {
+    article_id: articleId,
+    body: body,
+    author: username
+  };
+  console.log(commentToInsert);
+  return connection("comments")
+    .insert(commentToInsert)
     .returning("*");
 };
