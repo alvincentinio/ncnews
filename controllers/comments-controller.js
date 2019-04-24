@@ -18,10 +18,12 @@ exports.patchCommentVotesById = (req, res, next) => {
 exports.deleteCommentById = (req, res, next) => {
   const { commentId } = req.params;
   removeCommentById(commentId)
-    .then(([comment]) => {
-      res.status(204).send({ comment });
+    .then(result => {
+      if (result === 1) {
+        res.status(204).send();
+      } else {
+        return Promise.reject({ status: 404, msg: "comment_id not found" });
+      }
     })
-    .catch(err => {
-      console.log(err);
-    });
+    .catch(next);
 };

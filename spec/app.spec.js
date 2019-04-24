@@ -47,7 +47,7 @@ describe.only("/", () => {
         .get("/api/articles")
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles).to.be.an("array");
+          expect(body).to.be.an("array");
         });
     });
 
@@ -56,8 +56,8 @@ describe.only("/", () => {
         .get("/api/articles")
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles).to.be.an("array");
-          expect(body.articles[0]).to.contain.keys(
+          expect(body).to.be.an("array");
+          expect(body[0]).to.contain.keys(
             "article_id",
             "title",
             "votes",
@@ -103,10 +103,8 @@ describe.only("/", () => {
         .send({ inc_votes: 2 })
         .expect(200)
         .then(({ body }) => {
-          expect(body.article.votes).to.equal(102);
-          expect(body.article.title).to.equal(
-            "Living in the shadow of a great man"
-          );
+          expect(body.votes).to.equal(102);
+          expect(body.title).to.equal("Living in the shadow of a great man");
         });
     });
   });
@@ -135,18 +133,17 @@ describe.only("/", () => {
           expect(body[0].votes).to.equal(14);
         });
     });
-    xit("POST - status(200) - /:article_id/comments - posts new comment by article_id - responds with posted comment", () => {
+    it("POST - status(200) - /:article_id/comments - posts new comment by article_id - responds with posted comment", () => {
       const newComment = {
-        username: "al",
+        username: "butter_bridge",
         body: "test body"
       };
       return request
         .post("/api/articles/1/comments")
         .send(newComment)
-        .expect(200)
+        .expect(201)
         .then(({ body }) => {
-          // console.log(body);
-          expect(body).to.contain.keys(
+          expect(body[0]).to.contain.keys(
             "comment_id",
             "article_id",
             "votes",
@@ -154,10 +151,10 @@ describe.only("/", () => {
             "author",
             "created_at"
           );
-          expect(body.article_id).to.equal(1);
-          expect(body.votes).to.equal(0);
-          expect(body.body).to.equal("test body");
-          expect(body.author).to.equal("al");
+          expect(body[0].article_id).to.equal(1);
+          expect(body[0].votes).to.equal(0);
+          expect(body[0].body).to.equal("test body");
+          expect(body[0].author).to.equal("butter_bridge");
         });
     });
   });
@@ -173,11 +170,15 @@ describe.only("/", () => {
         });
     });
     it("DELETE - status(204) - /:comment_id - deletes a comment by Id", () => {
+      return request.delete("/api/comments/1").expect(204);
+    });
+    xit("DELETE - status(404) - /:comment_id - for a non-existent comment_id", () => {
       return request
-        .delete("/api/comments/1")
-        .expect(204)
+        .delete("/api/comments/20")
+        .expect(404)
         .then(({ body }) => {
-          expect(body.comment).to.be.undefined;
+          console.log(body, "<--- body");
+          expect(body.msg).to.equal("comment_id not found");
         });
     });
   });

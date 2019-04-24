@@ -10,6 +10,5 @@ exports.updateCommentVotesById = (commentId, inc_votes) => {
 exports.removeCommentById = commentId => {
   return connection("comments")
     .where("comment_id", "=", commentId)
-    .returning("*")
     .del();
 };

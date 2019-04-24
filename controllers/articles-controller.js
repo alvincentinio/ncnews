@@ -9,7 +9,7 @@ const {
 exports.getAllArticles = (req, res, next) => {
   fetchAllArticles(req.query)
     .then(articles => {
-      res.status(200).send({ articles });
+      res.status(200).send(articles);
     })
     .catch(err => {
       console.log(err);
@@ -32,7 +32,7 @@ exports.patchArticleVotesById = (req, res, next) => {
   const { inc_votes } = req.body;
   updateArticleVotesById(articleId, inc_votes)
     .then(([article]) => {
-      res.status(200).send({ article });
+      res.status(200).send(article);
     })
     .catch(err => {
       console.log(err);
@@ -59,8 +59,9 @@ exports.postCommentByArticleId = (req, res, next) => {
   // console.log(body);
   // console.log(req.body);
   createCommentByArticleId(articleId, username, body)
-    .then(comment => {
-      comment.res.status(200).send({ comment });
+    .then(result => {
+      // console.log(result);
+      res.status(201).send(result);
     })
     .catch(err => {
       console.log(err);
