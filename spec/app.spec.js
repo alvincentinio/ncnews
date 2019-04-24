@@ -182,4 +182,23 @@ describe.only("/", () => {
         });
     });
   });
+  describe('"/api/users/:username', () => {
+    it("GET status:200 - responds with a user object", () => {
+      return request
+        .get("/api/users/icellusedkars")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).to.be.an("object");
+        });
+    });
+    it("GET - status(200) - the user object should have the correct keys", () => {
+      return request
+        .get("/api/users/icellusedkars")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).to.be.an("object");
+          expect(body).to.contain.keys("username", "avatar_url", "name");
+        });
+    });
+  });
 });
