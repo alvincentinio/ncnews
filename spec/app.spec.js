@@ -47,7 +47,7 @@ describe.only("/", () => {
         .get("/api/articles")
         .expect(200)
         .then(({ body }) => {
-          expect(body).to.be.an("array");
+          expect(body.articles).to.be.an("array");
         });
     });
 
@@ -56,8 +56,8 @@ describe.only("/", () => {
         .get("/api/articles")
         .expect(200)
         .then(({ body }) => {
-          expect(body).to.be.an("array");
-          expect(body[0]).to.contain.keys(
+          expect(body.articles).to.be.an("array");
+          expect(body.articles[0]).to.contain.keys(
             "article_id",
             "title",
             "votes",
@@ -73,10 +73,10 @@ describe.only("/", () => {
         .get("/api/articles?author=rogersop")
         .expect(200)
         .then(({ body }) => {
-          expect(body).to.be.an("array");
-          expect(body[0].author).to.equal("rogersop");
-          expect(body[0].topic).to.equal("mitch");
-          expect(body[0].article_id).to.equal(4);
+          expect(body.articles).to.be.an("array");
+          expect(body.articles[0].author).to.equal("rogersop");
+          expect(body.articles[0].topic).to.equal("mitch");
+          expect(body.articles[0].article_id).to.equal(4);
         });
     });
     it("GET - status(200) - articles can be selected by topic", () => {
@@ -84,10 +84,10 @@ describe.only("/", () => {
         .get("/api/articles?topic=cats")
         .expect(200)
         .then(({ body }) => {
-          expect(body).to.be.an("array");
-          expect(body[0].author).to.equal("rogersop");
-          expect(body[0].topic).to.equal("cats");
-          expect(body[0].article_id).to.equal(5);
+          expect(body.articles).to.be.an("array");
+          expect(body.articles[0].author).to.equal("rogersop");
+          expect(body.articles[0].topic).to.equal("cats");
+          expect(body.articles[0].article_id).to.equal(5);
         });
     });
     it("GET - status(200) - articles can be sorted by any valid column - default order desc", () => {
@@ -95,10 +95,10 @@ describe.only("/", () => {
         .get("/api/articles?sort_by=article_id")
         .expect(200)
         .then(({ body }) => {
-          expect(body).to.be.an("array");
-          expect(body[0].author).to.equal("butter_bridge");
-          expect(body[0].topic).to.equal("mitch");
-          expect(body[0].article_id).to.equal(12);
+          expect(body.articles).to.be.an("array");
+          expect(body.articles[0].author).to.equal("butter_bridge");
+          expect(body.articles[0].topic).to.equal("mitch");
+          expect(body.articles[0].article_id).to.equal(12);
         });
     });
     it("GET - status(200) - articles can be put in ascending order - by default date", () => {
@@ -106,11 +106,13 @@ describe.only("/", () => {
         .get("/api/articles?order=asc")
         .expect(200)
         .then(({ body }) => {
-          expect(body).to.be.an("array");
-          expect(body[0].author).to.equal("butter_bridge");
-          expect(body[0].topic).to.equal("mitch");
-          expect(body[0].article_id).to.equal(12);
-          expect(body[0].created_at).to.equal("1974-11-26T12:21:54.171Z");
+          expect(body.articles).to.be.an("array");
+          expect(body.articles[0].author).to.equal("butter_bridge");
+          expect(body.articles[0].topic).to.equal("mitch");
+          expect(body.articles[0].article_id).to.equal(12);
+          expect(body.articles[0].created_at).to.equal(
+            "1974-11-26T12:21:54.171Z"
+          );
         });
     });
   });
@@ -237,21 +239,12 @@ describe.only("/", () => {
         .send({ inc_votes: 2 })
         .expect(200)
         .then(({ body }) => {
-          expect(body.comment.votes).to.equal(18);
-          expect(body.comment.author).to.equal("butter_bridge");
+          expect(body.comment[0].votes).to.equal(18);
+          expect(body.comment[0].author).to.equal("butter_bridge");
         });
     });
     it("DELETE - status(204) - /:comment_id - deletes a comment by Id", () => {
       return request.delete("/api/comments/1").expect(204);
-    });
-    xit("DELETE - status(404) - /:comment_id - for a non-existent comment_id", () => {
-      return request
-        .delete("/api/comments/20")
-        .expect(404)
-        .then(({ body }) => {
-          console.log(body, "<--- body");
-          expect(body.msg).to.equal("comment_id not found");
-        });
     });
   });
   describe('"/api/users/:username', () => {
@@ -274,7 +267,7 @@ describe.only("/", () => {
     });
   });
   describe("ERRORS - Route Not Found", () => {
-    it("Root Path/xyz - Status: 404 - handles Route Not Found when given invalid path", () => {
+    it("GET - Root Path/xyz - Status: 404 - handles Route Not Found when given invalid path", () => {
       return request
         .get("/xyz")
         .expect(404)
@@ -282,7 +275,7 @@ describe.only("/", () => {
           expect(body.msg).to.equal("Route Not Found");
         });
     });
-    it("/xyz - Status: 404 - handles Route Not Found when given invalid path", () => {
+    it("GET - api/xyz - Status: 404 - handles Route Not Found when given invalid path", () => {
       return request
         .get("/api/xyz")
         .expect(404)
@@ -290,7 +283,7 @@ describe.only("/", () => {
           expect(body.msg).to.equal("Route Not Found");
         });
     });
-    it("/api/articles/:article_id/xyz - Status: 404 - handles Route Not Found when given invalid path", () => {
+    it("GET /api/articles/:article_id/xyz - Status: 404 - handles Route Not Found when given invalid path", () => {
       return request
         .get("/api/articles/1/xyz")
         .expect(404)
@@ -298,7 +291,7 @@ describe.only("/", () => {
           expect(body.msg).to.equal("Route Not Found");
         });
     });
-    it("/api/comments/:comment_id/xyz - Status: 404 - handles Route Not Found when given invalid path", () => {
+    it("GET - /api/comments/:comment_id/xyz - Status: 404 - handles Route Not Found when given invalid path", () => {
       return request
         .get("/api/comments/1/xyz")
         .expect(404)
@@ -306,7 +299,7 @@ describe.only("/", () => {
           expect(body.msg).to.equal("Route Not Found");
         });
     });
-    it("/api/topics/xyz - Status: 404 - handles Route Not Found when given invalid path", () => {
+    it("GET - /api/topics/xyz - Status: 404 - handles Route Not Found when given invalid path", () => {
       return request
         .get("/api/topics/xyz")
         .expect(404)
@@ -314,7 +307,7 @@ describe.only("/", () => {
           expect(body.msg).to.equal("Route Not Found");
         });
     });
-    it("/api/users/:username/xyz - Status: 404 - handles Route Not Found when given invalid path", () => {
+    it("GET - /api/users/:username/xyz - Status: 404 - handles Route Not Found when given invalid path", () => {
       return request
         .get("/api/users/1/xyz")
         .expect(404)
@@ -340,9 +333,18 @@ describe.only("/", () => {
           expect(body.msg).to.equal("Method Not Allowed");
         });
     });
-    it("POST /api/articles - Status: 405 - handles Method Not Allowed when given an invalid method for route", () => {
+    it("PATCH /api - Status: 405 - handles Method Not Allowed when given an invalid method for route", () => {
       return request
-        .post("/api/articles")
+        .patch("/api")
+        .send({ hello: 1 })
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Method Not Allowed");
+        });
+    });
+    it("DELETE /api/articles - Status: 405 - handles Method Not Allowed when given an invalid method for route", () => {
+      return request
+        .delete("/api/articles")
         .expect(405)
         .then(({ body }) => {
           expect(body.msg).to.equal("Method Not Allowed");
@@ -356,9 +358,9 @@ describe.only("/", () => {
           expect(body.msg).to.equal("Method Not Allowed");
         });
     });
-    it("DELETE /api/articles/:article_id - Status: 405 - handles Method Not Allowed when given an invalid method for route", () => {
+    it("POST /api/articles/:article_id - Status: 405 - handles Method Not Allowed when given an invalid method for route", () => {
       return request
-        .delete("/api/articles/1")
+        .post("/api/articles/1")
         .expect(405)
         .then(({ body }) => {
           expect(body.msg).to.equal("Method Not Allowed");
@@ -372,9 +374,25 @@ describe.only("/", () => {
           expect(body.msg).to.equal("Method Not Allowed");
         });
     });
+    it("PATCH /api/articles/:article_id/comments - Status: 405 - handles Method Not Allowed when given an invalid method for route", () => {
+      return request
+        .patch("/api/articles/1/comments")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Method Not Allowed");
+        });
+    });
     it("GET /api/comments/:comment_id - Status: 405 - handles Method Not Allowed when given an invalid method for route", () => {
       return request
         .get("/api/comments/1")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Method Not Allowed");
+        });
+    });
+    it("POST /api/comments/:comment_id - Status: 405 - handles Method Not Allowed when given an invalid method for route", () => {
+      return request
+        .post("/api/comments/1")
         .expect(405)
         .then(({ body }) => {
           expect(body.msg).to.equal("Method Not Allowed");
@@ -388,9 +406,49 @@ describe.only("/", () => {
           expect(body.msg).to.equal("Method Not Allowed");
         });
     });
+    it("PATCH /api/topics - Status: 405 - handles Method Not Allowed when given an invalid method for route", () => {
+      return request
+        .patch("/api/topics")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Method Not Allowed");
+        });
+    });
     it("DELETE /api/users/:username - Status: 405 - handles Method Not Allowed when given an invalid method for route", () => {
       return request
         .delete("/api/users/butter_bridge")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Method Not Allowed");
+        });
+    });
+    it("PATCH /api/users/:username - Status: 405 - handles Method Not Allowed when given an invalid method for route", () => {
+      return request
+        .patch("/api/users/butter_bridge")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Method Not Allowed");
+        });
+    });
+    it("POST /api/users/:username - Status: 405 - handles Method Not Allowed when given an invalid method for route", () => {
+      return request
+        .post("/api/users/butter_bridge")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Method Not Allowed");
+        });
+    });
+    it("DELETE /api/users/ - Status: 405 - handles Method Not Allowed when given an invalid method for route", () => {
+      return request
+        .delete("/api/users/butter_bridge")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Method Not Allowed");
+        });
+    });
+    it("PATCH /api/users/ - Status: 405 - handles Method Not Allowed when given an invalid method for route", () => {
+      return request
+        .patch("/api/users/butter_bridge")
         .expect(405)
         .then(({ body }) => {
           expect(body.msg).to.equal("Method Not Allowed");
@@ -428,11 +486,11 @@ describe.only("/", () => {
         .get("/api/articles/dog")
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).to.equal("bad article_id");
+          expect(body.msg).to.equal("bad id");
         });
     });
   });
-  describe("ERRORS - Bad Queries", () => {
+  describe("ERRORS - /api/articles - Bad Queries", () => {
     it("GET /api/articles - sort_by a column that doesn't exist", () => {
       return request
         .get("/api/articles?sort_by=dinosaurs")
@@ -452,5 +510,49 @@ describe.only("/", () => {
         });
     });
   });
-  xdescribe("", () => {});
+  describe("/api/comments/:commentId", () => {
+    it("DELETE - status(404) - /:comment_id - for well-formed but non-existent comment_id", () => {
+      return request
+        .delete("/api/comments/20")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("comment_id not found");
+        });
+    });
+    it("DELETE - status(404) - /:comment_id - for a bad comment_id", () => {
+      return request
+        .delete("/api/comments/xyz")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("bad id");
+        });
+    });
+    it("PATCH - status(400) - /:comment_id - for a bad comment_id", () => {
+      return request
+        .patch("/api/comments/xyz")
+        .send({ inc_votes: 2 })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("bad id");
+        });
+    });
+    it("PATCH - status(404) - /:comment_id - for well-formed but non-existent comment_id", () => {
+      return request
+        .patch("/api/comments/20")
+        .send({ inc_votes: 2 })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("comment_id not found");
+        });
+    });
+    it("PATCH - status(400) - /:comment_id - invalid votes body", () => {
+      return request
+        .patch("/api/comments/1")
+        .send({ inc_votes: "potato" })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("invalid votes body");
+        });
+    });
+  });
 });

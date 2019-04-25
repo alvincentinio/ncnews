@@ -7,12 +7,15 @@ exports.patchCommentVotesById = (req, res, next) => {
   const { commentId } = req.params;
   const { inc_votes } = req.body;
   updateCommentVotesById(commentId, inc_votes)
-    .then(([comment]) => {
-      res.status(200).send({ comment });
+    .then(comment => {
+      console.log(typeof inc_votes);
+      if (comment.length !== 0 && typeof inc_votes == "number")
+        res.status(200).send({ comment });
+      else if (comment.length === 0) {
+        return Promise.reject({ status: 404, msg: "comment_id not found" });
+      } else return Promise.reject({});
     })
-    .catch(err => {
-      console.log(err);
-    });
+    .catch(next);
 };
 
 exports.deleteCommentById = (req, res, next) => {

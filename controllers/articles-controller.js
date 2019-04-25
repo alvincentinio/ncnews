@@ -9,7 +9,7 @@ const {
 exports.getAllArticles = (req, res, next) => {
   fetchAllArticles(req.query)
     .then(articles => {
-      if (articles.length !== 0) res.status(200).send(articles);
+      if (articles.length !== 0) res.status(200).send({ articles });
       else
         return Promise.reject({
           status: 200,
@@ -58,7 +58,5 @@ exports.postCommentByArticleId = (req, res, next) => {
     .then(result => {
       res.status(201).send(result);
     })
-    .catch(err => {
-      console.log(err);
-    });
+    .catch(next);
 };
