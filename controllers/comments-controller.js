@@ -8,12 +8,21 @@ exports.patchCommentVotesById = (req, res, next) => {
   const { inc_votes } = req.body;
   updateCommentVotesById(commentId, inc_votes)
     .then(comment => {
-      console.log(typeof inc_votes);
-      if (comment.length !== 0 && typeof inc_votes == "number")
+      let votesAsNumber = parseInt(inc_votes);
+      if (
+        inc_votes &&
+        comment.length !== 0 &&
+        typeof votesAsNumber === "number"
+      ) {
         res.status(200).send({ comment });
-      else if (comment.length === 0) {
+      } else if (comment.length === 0 && typeof votesAsNumber == "number") {
         return Promise.reject({ status: 404, msg: "comment_id not found" });
-      } else return Promise.reject({});
+      } else if (!inc_votes) {
+        return Promise.reject({
+          status: 400,
+          msg: "inc_votes not in request body"
+        });
+      }
     })
     .catch(next);
 };

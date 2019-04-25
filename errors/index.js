@@ -7,29 +7,29 @@ exports.methodNotAllowed = (req, res, next) => {
 };
 
 exports.handlePsqlErrors = (err, req, res, next) => {
-  console.log(err.code, "<-- ERROR CODE handlepsql");
-  if (err.code === "22P02") {
-    res.status(400).send({ status: 400, msg: "bad id" });
-  } else if (err.code === "42703") {
+  // console.log(err.code, "<-- ERROR CODE handlepsql");
+  const psqlCodes = {
+    "22P02": { status: 400, msg: "Invalid Input" },
+    "42703": { status: 400, msg: "sort_by parameter doesn't exist" }
+  };
+  if (psqlCodes[err.code]) {
     res
-      .status(400)
-      .send({ status: 400, msg: "sort_by parameter doesn't exist" });
-  } else {
-    next(err);
-  }
+      .status(psqlCodes[err.code].status)
+      .send({ msg: psqlCodes[err.code].msg });
+  } else next(err);
 };
 
 exports.handleCustomErrors = (err, req, res, next) => {
-  console.log(err.code, "<-- handleCustomErrors");
-  if (err.msg === "article_id not found") {
-    res.status(404).send(err);
-  } else if (err.msg === "no articles in database for selected author") {
-    res.status(200).send(err);
-  } else if (err.msg === "comment_id not found") {
-    res.status(404).send(err);
-  } else {
-    next(err);
-  }
+  if (err.status && err.msg) res.status(err.status).send({ msg: err.msg });
+  // if (err.msg === "article_id not found") {
+  //   res.status(404).send(err);
+  // } else if (err.msg === "no articles in database for selected author") {
+  //   res.status(200).send(err);
+  // } else if (err.msg === "comment_id not found") {
+  //   res.status(404).send(err);
+  // } else if (err.msg === "invalid votes body") {
+  //   res.status(404).send(err);
+  else next(err);
 };
 
 exports.handle500 = (err, req, res, next) => {

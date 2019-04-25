@@ -207,7 +207,7 @@ describe.only("/", () => {
           expect(body[0].comment_id).to.equal(2);
         });
     });
-    it("POST - status(200) - /:article_id/comments - posts new comment by article_id - responds with posted comment", () => {
+    it("POST - status(201) - /:article_id/comments - posts new comment by article_id - responds with posted comment", () => {
       const newComment = {
         username: "butter_bridge",
         body: "test body"
@@ -236,7 +236,7 @@ describe.only("/", () => {
     it("PATCH - status(200) - /:comment_id accepts a body of inc_votes and returns updated comment", () => {
       return request
         .patch("/api/comments/1")
-        .send({ inc_votes: 2 })
+        .send({ inc_votes: "2" })
         .expect(200)
         .then(({ body }) => {
           expect(body.comment[0].votes).to.equal(18);
@@ -486,7 +486,7 @@ describe.only("/", () => {
         .get("/api/articles/dog")
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).to.equal("bad id");
+          expect(body.msg).to.equal("Invalid Input");
         });
     });
   });
@@ -524,22 +524,22 @@ describe.only("/", () => {
         .delete("/api/comments/xyz")
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).to.equal("bad id");
+          expect(body.msg).to.equal("Invalid Input");
         });
     });
     it("PATCH - status(400) - /:comment_id - for a bad comment_id", () => {
       return request
         .patch("/api/comments/xyz")
-        .send({ inc_votes: 2 })
+        .send({ inc_votes: "2" })
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).to.equal("bad id");
+          expect(body.msg).to.equal("Invalid Input");
         });
     });
     it("PATCH - status(404) - /:comment_id - for well-formed but non-existent comment_id", () => {
       return request
         .patch("/api/comments/20")
-        .send({ inc_votes: 2 })
+        .send({ inc_votes: "2" })
         .expect(404)
         .then(({ body }) => {
           expect(body.msg).to.equal("comment_id not found");
@@ -547,11 +547,20 @@ describe.only("/", () => {
     });
     it("PATCH - status(400) - /:comment_id - invalid votes body", () => {
       return request
-        .patch("/api/comments/1")
+        .patch("/api/comments/10")
         .send({ inc_votes: "potato" })
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).to.equal("invalid votes body");
+          expect(body.msg).to.equal("Invalid Input");
+        });
+    });
+    it("PATCH - status(400) - /:comment_id - inc_votes not in body", () => {
+      return request
+        .patch("/api/comments/10")
+        .send({ in_vot: "2" })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("inc_votes not in request body");
         });
     });
   });
