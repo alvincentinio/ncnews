@@ -150,8 +150,10 @@ describe.only("/", () => {
         .send({ inc_votes: 2 })
         .expect(200)
         .then(({ body }) => {
-          expect(body.votes).to.equal(102);
-          expect(body.title).to.equal("Living in the shadow of a great man");
+          expect(body.article[0].votes).to.equal(102);
+          expect(body.article[0].title).to.equal(
+            "Living in the shadow of a great man"
+          );
         });
     });
   });
@@ -217,7 +219,7 @@ describe.only("/", () => {
         .send(newComment)
         .expect(201)
         .then(({ body }) => {
-          expect(body[0]).to.contain.keys(
+          expect(body.comment[0]).to.contain.keys(
             "comment_id",
             "article_id",
             "votes",
@@ -225,10 +227,10 @@ describe.only("/", () => {
             "author",
             "created_at"
           );
-          expect(body[0].article_id).to.equal(1);
-          expect(body[0].votes).to.equal(0);
-          expect(body[0].body).to.equal("test body");
-          expect(body[0].author).to.equal("butter_bridge");
+          expect(body.comment[0].article_id).to.equal(1);
+          expect(body.comment[0].votes).to.equal(0);
+          expect(body.comment[0].body).to.equal("test body");
+          expect(body.comment[0].author).to.equal("butter_bridge");
         });
     });
   });
@@ -461,7 +463,7 @@ describe.only("/", () => {
         .get("/api/articles/50")
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).to.equal("article_id not found");
+          expect(body.msg).to.equal("Id Not Found");
         });
     });
     it("PATCH - status 404 - /articles/:articleId for a non-existent article_id", () => {
@@ -470,7 +472,7 @@ describe.only("/", () => {
         .send({ inc_votes: 2 })
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).to.equal("article_id not found");
+          expect(body.msg).to.equal("Article Id Not Found");
         });
     });
     it("GET - status 404 - /articles/:articleId/comments for a non-existent article_id", () => {
@@ -478,7 +480,7 @@ describe.only("/", () => {
         .get("/api/articles/50/comments")
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).to.equal("article_id not found");
+          expect(body.msg).to.equal("Id Not Found");
         });
     });
     it("GET - status 400 - /articles/:articleId for a bad article_id (dog)", () => {
@@ -519,7 +521,7 @@ describe.only("/", () => {
           expect(body.msg).to.equal("comment_id not found");
         });
     });
-    it("DELETE - status(404) - /:comment_id - for a bad comment_id", () => {
+    it("DELETE - status(400) - /:comment_id - for a bad comment_id", () => {
       return request
         .delete("/api/comments/xyz")
         .expect(400)
@@ -563,5 +565,84 @@ describe.only("/", () => {
           expect(body.msg).to.equal("inc_votes not in request body");
         });
     });
+  });
+  describe("/api/articles/:articleId", () => {
+    it("GET - status(404) - /:articleId/comments - for well-formed but non-existent article_id", () => {
+      return request
+        .get("/api/articles/999/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Id Not Found");
+        });
+    });
+    it("GET - status(400) - /:comment_id/comments - for a bad comment_id", () => {
+      return request
+        .get("/api/articles/xyz/comments")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Invalid Input");
+        });
+    });
+    it("PATCH - status(400) - /articles/:article_id - inc_votes not in body", () => {
+      return request
+        .patch("/api/articles/10")
+        .send({ in_vot: "2" })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("inc_votes not in request body");
+        });
+    });
+    it("PATCH - status(400) - /articles/:article_id - invalid votes body", () => {
+      return request
+        .patch("/api/articles/10")
+        .send({ inc_votes: "potato" })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Invalid Input");
+        });
+    });
+    it("POST - status(400) - /articles/:article_id/comments - invalid post body (no username)", () => {
+      const newComment = {
+        user: "butter_bridge",
+        body: "ddd"
+      };
+      return request
+        .post("/api/articles/1/comments")
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Invalid Input");
+        });
+    });
+    it("POST - status(400) - /articles/:article_id/comments - username not in database", () => {
+      const newComment = {
+        username: "al",
+        body: "test body"
+      };
+      return request
+        .post("/api/articles/1/comments")
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Invalid Input");
+        });
+    });
+    it("POST - status(400) - /articles/:article_id/comments - extra key(s) on post body", () => {
+      const newComment = {
+        username: "al",
+        body: "test body",
+        sex: "male"
+      };
+      return request
+        .post("/api/articles/1/comments")
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Invalid Input");
+        });
+    });
+  });
+  describe("/api/users/:username", () => {
+    it("GET - status(404) - for invalid username", () => {});
   });
 });
