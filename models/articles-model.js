@@ -109,3 +109,11 @@ exports.checkArticleExists = articleId => {
     .where("article_id", "=", articleId)
     .returning("*");
 };
+
+exports.checkUserExists = username => {
+  return connection
+    .select("*")
+    .from("users")
+    .where("username", "=", username)
+    .returning("*");
+};

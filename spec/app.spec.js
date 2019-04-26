@@ -564,6 +564,12 @@ describe.only("/", () => {
           expect(body.msg).to.equal("Invalid Input");
         });
     });
+    it("PATCH - status(200) - /:comment_id - no patch body", () => {
+      return request
+        .patch("/api/comments/10")
+        .send({})
+        .expect(200);
+    });
     it("PATCH - status(400) - /:comment_id - inc_votes not in body", () => {
       return request
         .patch("/api/comments/10")
@@ -609,6 +615,21 @@ describe.only("/", () => {
           expect(body.msg).to.equal("Invalid Input");
         });
     });
+  });
+  describe("/api/articles/:articleId/comments", () => {
+    it("GET - status(200) - /articles/:article_id/comments - article exists but has no comments", () => {
+      return request
+        .get("/api/articles/2/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).to.eql({ comments: [] });
+        });
+    });
+    it("POST - status(400) - BAD REQUEST when post doesn't include the required keys", () => {});
+    it("POST - status(404) - NOT FOUND when post contains valid articleId that doesn't exist in database", () => {});
+    it("POST - status(404) - NOT FOUND when post contains valid articleId that doesn't exist in database", () => {});
+    it("POST - status(404) - NOT FOUND when post contains valid articleId that doesn't exist in database", () => {});
+    it("POST - status(404) - NOT FOUND when post contains valid articleId that doesn't exist in database", () => {});
     it("POST - status(400) - /articles/:article_id/comments - invalid post body (no username)", () => {
       const newComment = {
         user: "butter_bridge",
@@ -649,17 +670,6 @@ describe.only("/", () => {
           expect(body.msg).to.equal("Invalid Input");
         });
     });
-    it("GET - status(200) - /articles/:article_id/comments - article exists but has no comments", () => {
-      return request
-        .get("/api/articles/2/comments")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body).to.eql({ comments: [] });
-        });
-    });
-  });
-  describe("/api/articles", () => {
-    it("GET - status(404) - for invalid username", () => {});
   });
 });
 

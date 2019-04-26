@@ -8,7 +8,8 @@ const {
   removeArticleById,
   checkAuthorExists,
   checkTopicExists,
-  checkArticleExists
+  checkArticleExists,
+  checkUserExists
 } = require("../models/articles-model");
 
 exports.getAllArticles = (req, res, next) => {
@@ -56,8 +57,6 @@ exports.patchArticleVotesById = (req, res, next) => {
         return Promise.reject({ status: 404, msg: "Article Id Not Found" });
       } else if ((inc_votes && requestLength === 1) || requestLength === 0) {
         res.status(200).send({ article: article[0] });
-        // } else if (requestLength === 0) {
-        //   res.status(200).send({ article: article[0] });
       } else if (!inc_votes) {
         return Promise.reject({
           status: 400,
@@ -100,10 +99,6 @@ exports.postCommentByArticleId = (req, res, next) => {
     .then(comment => {
       if (username && body && Object.keys(req.body).length === 2) {
         res.status(201).send({ comment: comment[0] });
-        // if !username => return bad request "username required in request"
-        // if !body => return "body required in request"
-        // if username not a string, body not a string => bad request
-        //
       } else {
         return Promise.reject({ status: 400, msg: "Invalid Input" });
       }
