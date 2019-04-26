@@ -43,7 +43,7 @@ exports.fetchArticleById = articleId => {
 exports.updateArticleVotesById = (articleId, inc_votes) => {
   return connection("articles")
     .where("article_id", "=", articleId)
-    .increment("votes", inc_votes)
+    .increment("votes", inc_votes || 0)
     .returning("*");
 };
 
@@ -62,8 +62,50 @@ exports.createCommentByArticleId = (articleId, username, body) => {
     body: body,
     author: username
   };
-  // console.log(commentToInsert);
   return connection("comments")
     .insert(commentToInsert)
+    .returning("*");
+};
+
+exports.createAnArticle = (username, title, body, topic) => {
+  const articleToInsert = {
+    author: username,
+    title: title,
+    body: body,
+    topic: topic
+  };
+  console.log(articleToInsert);
+  return connection("articles")
+    .insert(articleToInsert)
+    .returning("*");
+};
+
+exports.removeArticleById = articleId => {
+  return connection("articles")
+    .where("article_id", "=", articleId)
+    .del();
+};
+
+exports.checkAuthorExists = author => {
+  return connection
+    .select("*")
+    .from("users")
+    .where("username", "=", author)
+    .returning("*");
+};
+
+exports.checkTopicExists = topic => {
+  return connection
+    .select("*")
+    .from("topics")
+    .where("slug", "=", topic)
+    .returning("*");
+};
+
+exports.checkArticleExists = articleId => {
+  return connection
+    .select("*")
+    .from("articles")
+    .where("article_id", "=", articleId)
     .returning("*");
 };

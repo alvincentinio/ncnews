@@ -3,4 +3,5 @@ knexfile.js
 .DS_Store
 oldREADME.md 
 data.txt
-errorstodealwith.md
+/errors/errorstodealwith.md
+/errors/feedback.md

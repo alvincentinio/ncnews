@@ -1,10 +1,14 @@
 const topicsRouter = require("express").Router();
-const { getAllTopics } = require("../controllers/topics-controller");
+const {
+  getAllTopics,
+  postATopic
+} = require("../controllers/topics-controller");
 const { methodNotAllowed } = require("../errors");
 
 topicsRouter
   .route("/")
   .get(getAllTopics)
+  .post(postATopic)
   .all(methodNotAllowed);
 
 module.exports = topicsRouter;

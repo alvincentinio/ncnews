@@ -3,18 +3,30 @@ const {
   fetchArticleById,
   updateArticleVotesById,
   fetchCommentsByArticleId,
-  createCommentByArticleId
+  createCommentByArticleId,
+  createAnArticle,
+  removeArticleById,
+  checkAuthorExists,
+  checkTopicExists,
+  checkArticleExists
 } = require("../models/articles-model");
 
 exports.getAllArticles = (req, res, next) => {
-  fetchAllArticles(req.query)
-    .then(articles => {
-      if (articles.length !== 0) res.status(200).send({ articles });
-      else
+  const { author, topic } = req.query;
+  let checkExistsPromise;
+  if (author) checkExistsPromise = checkAuthorExists(author);
+  else if (topic) checkExistsPromise = checkTopicExists(topic);
+  const fetchAllArticlesPromise = fetchAllArticles(req.query);
+  Promise.all([checkExistsPromise, fetchAllArticlesPromise])
+    .then(([result, articles]) => {
+      if (result && result.length === 0) {
         return Promise.reject({
-          status: 200,
-          msg: "no articles in database for selected author"
+          status: 404,
+          msg: "Query Does Not Exist In Database"
         });
+      } else {
+        res.status(200).send({ articles });
+      }
     })
     .catch(next);
 };
@@ -23,7 +35,7 @@ exports.getArticleById = (req, res, next) => {
   const { articleId } = req.params;
   fetchArticleById(articleId)
     .then(article => {
-      if (article.length !== 0) res.status(200).send(article[0]);
+      if (article.length !== 0) res.status(200).send({ article: article[0] });
       else return Promise.reject({ status: 404, msg: "Id Not Found" });
     })
     .catch(next);
@@ -32,35 +44,51 @@ exports.getArticleById = (req, res, next) => {
 exports.patchArticleVotesById = (req, res, next) => {
   const { articleId } = req.params;
   const { inc_votes } = req.body;
-  updateArticleVotesById(articleId, inc_votes)
-    .then(article => {
-      let votesAsNumber = parseInt(inc_votes);
-      if (
-        inc_votes &&
-        article.length !== 0 &&
-        typeof votesAsNumber == "number"
-      ) {
-        res.status(200).send({ article });
-      } else if (article.length === 0 && typeof votesAsNumber == "number") {
+  const requestLength = Object.keys(req.body).length;
+  const checkArticleExistsPromise = checkArticleExists(articleId);
+  const updateArticleVotesByIdPromise = updateArticleVotesById(
+    articleId,
+    inc_votes
+  );
+  Promise.all([checkArticleExistsPromise, updateArticleVotesByIdPromise])
+    .then(([result, article]) => {
+      if (result && result.length === 0) {
         return Promise.reject({ status: 404, msg: "Article Id Not Found" });
+      } else if ((inc_votes && requestLength === 1) || requestLength === 0) {
+        res.status(200).send({ article: article[0] });
+        // } else if (requestLength === 0) {
+        //   res.status(200).send({ article: article[0] });
       } else if (!inc_votes) {
         return Promise.reject({
           status: 400,
           msg: "inc_votes not in request body"
         });
+      } else if (requestLength > 1) {
+        return Promise.reject({
+          status: 400,
+          msg: "invalid request body"
+        });
       }
     })
-
     .catch(next);
 };
 
 exports.getCommentsByArticleId = (req, res, next) => {
   const { articleId } = req.params;
   const { sort_by, order } = req.query;
-  fetchCommentsByArticleId(articleId, sort_by, order)
-    .then(comments => {
-      if (comments.length !== 0) res.status(200).send(comments);
-      else return Promise.reject({ status: 404, msg: "Id Not Found" });
+  const checkArticleExistsPromise = checkArticleExists(articleId);
+  const fetchCommentsByArticleIdPromise = fetchCommentsByArticleId(
+    articleId,
+    sort_by,
+    order
+  );
+  Promise.all([checkArticleExistsPromise, fetchCommentsByArticleIdPromise])
+    .then(([result, comments]) => {
+      if (result && result.length === 0) {
+        return Promise.reject({ status: 404, msg: "Article Id Not Found" });
+      } else {
+        res.status(200).send({ comments });
+      }
     })
     .catch(next);
 };
@@ -71,13 +99,35 @@ exports.postCommentByArticleId = (req, res, next) => {
   createCommentByArticleId(articleId, username, body)
     .then(comment => {
       if (username && body && Object.keys(req.body).length === 2) {
-        res.status(201).send({ comment });
+        res.status(201).send({ comment: comment[0] });
         // if !username => return bad request "username required in request"
         // if !body => return "body required in request"
         // if username not a string, body not a string => bad request
         //
       } else {
         return Promise.reject({ status: 400, msg: "Invalid Input" });
+      }
+    })
+    .catch(next);
+};
+exports.postAnArticle = (req, res, next) => {
+  console.log(req.body);
+  const { username, title, body, topic } = req.body;
+  createAnArticle(username, title, body, topic)
+    .then(article => {
+      res.status(201).send({ article: article[0] });
+    })
+    .catch(next);
+};
+
+exports.deleteArticleById = (req, res, next) => {
+  const { articleId } = req.params;
+  removeArticleById(articleId)
+    .then(result => {
+      if (result === 1) {
+        res.status(204).send();
+      } else {
+        return Promise.reject({ ststus: 404, msg: "article_id not found" });
       }
     })
     .catch(next);

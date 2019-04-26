@@ -131,8 +131,8 @@ describe.only("/", () => {
         .get("/api/articles/1")
         .expect(200)
         .then(({ body }) => {
-          expect(body).to.be.an("object");
-          expect(body).to.contain.keys(
+          expect(body.article).to.be.an("object");
+          expect(body.article).to.contain.keys(
             "article_id",
             "title",
             "body",
@@ -150,8 +150,8 @@ describe.only("/", () => {
         .send({ inc_votes: 2 })
         .expect(200)
         .then(({ body }) => {
-          expect(body.article[0].votes).to.equal(102);
-          expect(body.article[0].title).to.equal(
+          expect(body.article.votes).to.equal(102);
+          expect(body.article.title).to.equal(
             "Living in the shadow of a great man"
           );
         });
@@ -163,7 +163,7 @@ describe.only("/", () => {
         .get("/api/articles/1/comments")
         .expect(200)
         .then(({ body }) => {
-          expect(body).to.be.an("array");
+          expect(body.comments).to.be.an("array");
         });
     });
     it("GET - status(200) - /:article_id/comments - each comment should have the correct keys", () => {
@@ -171,7 +171,7 @@ describe.only("/", () => {
         .get("/api/articles/1/comments")
         .expect(200)
         .then(({ body }) => {
-          expect(body[0]).to.contain.keys(
+          expect(body.comments[0]).to.contain.keys(
             "comment_id",
             "article_id",
             "votes",
@@ -179,7 +179,7 @@ describe.only("/", () => {
             "author",
             "created_at"
           );
-          expect(body[0].votes).to.equal(14);
+          expect(body.comments[0].votes).to.equal(14);
         });
     });
     it("GET - status(200) - /:article_id/comments - default sort by created_at", () => {
@@ -187,8 +187,10 @@ describe.only("/", () => {
         .get("/api/articles/1/comments")
         .expect(200)
         .then(({ body }) => {
-          expect(body[0].created_at).to.equal("2016-11-22T12:36:03.389Z");
-          expect(body[0].comment_id).to.equal(2);
+          expect(body.comments[0].created_at).to.equal(
+            "2016-11-22T12:36:03.389Z"
+          );
+          expect(body.comments[0].comment_id).to.equal(2);
         });
     });
     it("GET - status(200) - /:article_id/comments - can sort by any valid column - default desc order", () => {
@@ -196,8 +198,8 @@ describe.only("/", () => {
         .get("/api/articles/1/comments?sort_by=author")
         .expect(200)
         .then(({ body }) => {
-          expect(body[0].author).to.equal("icellusedkars");
-          expect(body[0].comment_id).to.equal(13);
+          expect(body.comments[0].author).to.equal("icellusedkars");
+          expect(body.comments[0].comment_id).to.equal(13);
         });
     });
     it("GET - status(200) - /:article_id/comments - can sort by any valid column - & asc order", () => {
@@ -205,8 +207,8 @@ describe.only("/", () => {
         .get("/api/articles/1/comments?sort_by=author&&order=asc")
         .expect(200)
         .then(({ body }) => {
-          expect(body[0].author).to.equal("butter_bridge");
-          expect(body[0].comment_id).to.equal(2);
+          expect(body.comments[0].author).to.equal("butter_bridge");
+          expect(body.comments[0].comment_id).to.equal(2);
         });
     });
     it("POST - status(201) - /:article_id/comments - posts new comment by article_id - responds with posted comment", () => {
@@ -219,7 +221,7 @@ describe.only("/", () => {
         .send(newComment)
         .expect(201)
         .then(({ body }) => {
-          expect(body.comment[0]).to.contain.keys(
+          expect(body.comment).to.contain.keys(
             "comment_id",
             "article_id",
             "votes",
@@ -227,10 +229,10 @@ describe.only("/", () => {
             "author",
             "created_at"
           );
-          expect(body.comment[0].article_id).to.equal(1);
-          expect(body.comment[0].votes).to.equal(0);
-          expect(body.comment[0].body).to.equal("test body");
-          expect(body.comment[0].author).to.equal("butter_bridge");
+          expect(body.comment.article_id).to.equal(1);
+          expect(body.comment.votes).to.equal(0);
+          expect(body.comment.body).to.equal("test body");
+          expect(body.comment.author).to.equal("butter_bridge");
         });
     });
   });
@@ -241,8 +243,8 @@ describe.only("/", () => {
         .send({ inc_votes: "2" })
         .expect(200)
         .then(({ body }) => {
-          expect(body.comment[0].votes).to.equal(18);
-          expect(body.comment[0].author).to.equal("butter_bridge");
+          expect(body.comment.votes).to.equal(18);
+          expect(body.comment.author).to.equal("butter_bridge");
         });
     });
     it("DELETE - status(204) - /:comment_id - deletes a comment by Id", () => {
@@ -264,7 +266,7 @@ describe.only("/", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body).to.be.an("object");
-          expect(body).to.contain.keys("username", "avatar_url", "name");
+          expect(body.user).to.contain.keys("username", "avatar_url", "name");
         });
     });
   });
@@ -480,7 +482,7 @@ describe.only("/", () => {
         .get("/api/articles/50/comments")
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).to.equal("Id Not Found");
+          expect(body.msg).to.equal("Article Id Not Found");
         });
     });
     it("GET - status 400 - /articles/:articleId for a bad article_id (dog)", () => {
@@ -503,12 +505,18 @@ describe.only("/", () => {
     });
     it("GET /api/articles - query by author that doesn't exist in the database", () => {
       return request
-        .get("/api/articles?author=dinosaurs")
-        .expect(200)
+        .get("/api/articles?author=not-a-topic")
+        .expect(404)
         .then(({ body }) => {
-          expect(body.msg).to.equal(
-            "no articles in database for selected author"
-          );
+          expect(body.msg).to.equal("Query Does Not Exist In Database");
+        });
+    });
+    it("GET /api/articles?topic= - query by topic that doesn't exist in the database", () => {
+      return request
+        .get("/api/articles?topic=not-a-topic")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Query Does Not Exist In Database");
         });
     });
   });
@@ -544,7 +552,7 @@ describe.only("/", () => {
         .send({ inc_votes: "2" })
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).to.equal("comment_id not found");
+          expect(body.msg).to.equal("Comment Id Not Found");
         });
     });
     it("PATCH - status(400) - /:comment_id - invalid votes body", () => {
@@ -572,7 +580,7 @@ describe.only("/", () => {
         .get("/api/articles/999/comments")
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).to.equal("Id Not Found");
+          expect(body.msg).to.equal("Article Id Not Found");
         });
     });
     it("GET - status(400) - /:comment_id/comments - for a bad comment_id", () => {
@@ -641,8 +649,22 @@ describe.only("/", () => {
           expect(body.msg).to.equal("Invalid Input");
         });
     });
+    it("GET - status(200) - /articles/:article_id/comments - article exists but has no comments", () => {
+      return request
+        .get("/api/articles/2/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).to.eql({ comments: [] });
+        });
+    });
   });
-  describe("/api/users/:username", () => {
+  describe("/api/articles", () => {
     it("GET - status(404) - for invalid username", () => {});
   });
 });
+
+// tests for POST /api/articles
+// tests for DELETE /api/articles/:articleId
+// tests for POST /api/topics
+// tests for POST /api/users
+// tests for GET /api/users - not done yet
