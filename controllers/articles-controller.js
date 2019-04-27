@@ -8,8 +8,7 @@ const {
   removeArticleById,
   checkAuthorExists,
   checkTopicExists,
-  checkArticleExists,
-  checkUserExists
+  checkArticleExists
 } = require("../models/articles-model");
 
 exports.getAllArticles = (req, res, next) => {
@@ -95,16 +94,28 @@ exports.getCommentsByArticleId = (req, res, next) => {
 exports.postCommentByArticleId = (req, res, next) => {
   const { articleId } = req.params;
   const { username, body } = req.body;
-  createCommentByArticleId(articleId, username, body)
-    .then(comment => {
-      if (username && body && Object.keys(req.body).length === 2) {
-        res.status(201).send({ comment: comment[0] });
-      } else {
+  const requestLength = Object.keys(req.body).length;
+  checkArticleExists(articleId)
+    .then(result => {
+      if (result.length === 0) {
+        return Promise.reject({ status: 404, msg: "Invalid Article Id" });
+      } else if (
+        username === undefined ||
+        body === undefined ||
+        requestLength !== 2
+      ) {
         return Promise.reject({ status: 400, msg: "Invalid Input" });
+      } else {
+        createCommentByArticleId(articleId, username, body)
+          .then(comment => {
+            res.status(201).send({ comment: comment[0] });
+          })
+          .catch(next);
       }
     })
     .catch(next);
 };
+
 exports.postAnArticle = (req, res, next) => {
   console.log(req.body);
   const { username, title, body, topic } = req.body;

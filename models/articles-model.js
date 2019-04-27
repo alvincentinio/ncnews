@@ -49,7 +49,7 @@ exports.updateArticleVotesById = (articleId, inc_votes) => {
 
 exports.fetchCommentsByArticleId = (articleId, sort_by, order) => {
   return connection
-    .select("*")
+    .select("comment_id", "votes", "created_at", "author", "body")
     .from("comments")
     .where("comments.article_id", "=", articleId)
     .orderBy(sort_by || "created_at", order || "desc")
@@ -74,7 +74,6 @@ exports.createAnArticle = (username, title, body, topic) => {
     body: body,
     topic: topic
   };
-  console.log(articleToInsert);
   return connection("articles")
     .insert(articleToInsert)
     .returning("*");
@@ -107,13 +106,5 @@ exports.checkArticleExists = articleId => {
     .select("*")
     .from("articles")
     .where("article_id", "=", articleId)
-    .returning("*");
-};
-
-exports.checkUserExists = username => {
-  return connection
-    .select("*")
-    .from("users")
-    .where("username", "=", username)
     .returning("*");
 };

@@ -7,11 +7,11 @@ exports.methodNotAllowed = (req, res, next) => {
 };
 
 exports.handlePsqlErrors = (err, req, res, next) => {
-  // console.log(err, "<-- ERROR CODE handlepsql");
+  // console.log(err.code, "<-- ERROR CODE handlepsql");
   const psqlCodes = {
     "22P02": { status: 400, msg: "Invalid Input" },
     "42703": { status: 400, msg: "sort_by parameter doesn't exist" },
-    "23503": { status: 400, msg: "Invalid Input" }
+    "23503": { status: 404, msg: "Invalid Username" }
   };
   if (psqlCodes[err.code]) {
     res
@@ -27,6 +27,6 @@ exports.handleCustomErrors = (err, req, res, next) => {
 };
 
 exports.handle500 = (err, req, res, next) => {
-  console.log(err, "<--ERROR IN HANDLE 500");
+  // console.log(err, "<--ERROR IN HANDLE 500");
   return res.status(500).send({ msg: "Internal Server Error" });
 };

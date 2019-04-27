@@ -173,7 +173,6 @@ describe.only("/", () => {
         .then(({ body }) => {
           expect(body.comments[0]).to.contain.keys(
             "comment_id",
-            "article_id",
             "votes",
             "body",
             "author",
@@ -625,15 +624,36 @@ describe.only("/", () => {
           expect(body).to.eql({ comments: [] });
         });
     });
-    it("POST - status(400) - BAD REQUEST when post doesn't include the required keys", () => {});
-    it("POST - status(404) - NOT FOUND when post contains valid articleId that doesn't exist in database", () => {});
-    it("POST - status(404) - NOT FOUND when post contains valid articleId that doesn't exist in database", () => {});
-    it("POST - status(404) - NOT FOUND when post contains valid articleId that doesn't exist in database", () => {});
-    it("POST - status(404) - NOT FOUND when post contains valid articleId that doesn't exist in database", () => {});
+    it("POST - status(404) - NOT FOUND when post contains valid articleId that doesn't exist in database", () => {
+      const newComment = {
+        username: "butter_bridge",
+        body: "test body 5"
+      };
+      return request
+        .post("/api/articles/10000/comments")
+        .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).to.eql("Invalid Article Id");
+        });
+    });
     it("POST - status(400) - /articles/:article_id/comments - invalid post body (no username)", () => {
       const newComment = {
         user: "butter_bridge",
         body: "ddd"
+      };
+      return request
+        .post("/api/articles/1/comments")
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Invalid Input");
+        });
+    });
+    it("POST - status(400) - /articles/:article_id/comments - invalid post body (no username)", () => {
+      const newComment = {
+        username: "butter_bridge",
+        bod: "ddd"
       };
       return request
         .post("/api/articles/1/comments")
@@ -651,9 +671,9 @@ describe.only("/", () => {
       return request
         .post("/api/articles/1/comments")
         .send(newComment)
-        .expect(400)
+        .expect(404)
         .then(({ body }) => {
-          expect(body.msg).to.equal("Invalid Input");
+          expect(body.msg).to.equal("Invalid Username");
         });
     });
     it("POST - status(400) - /articles/:article_id/comments - extra key(s) on post body", () => {
