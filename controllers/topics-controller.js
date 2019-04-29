@@ -9,11 +9,19 @@ exports.getAllTopics = (req, res, next) => {
 };
 
 exports.postATopic = (req, res, next) => {
-  console.log(req.body);
   const { description, slug } = req.body;
+  const requestLength = Object.keys(req.body).length;
   createATopic(description, slug)
     .then(topic => {
-      res.status(201).send({ topic: topic[0] });
+      if (
+        description === undefined ||
+        slug === undefined ||
+        requestLength !== 2
+      ) {
+        return Promise.reject({ status: 400, msg: "Invalid Input" });
+      } else {
+        res.status(201).send({ topic: topic[0] });
+      }
     })
     .catch(next);
 };

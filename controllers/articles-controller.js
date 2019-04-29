@@ -117,11 +117,21 @@ exports.postCommentByArticleId = (req, res, next) => {
 };
 
 exports.postAnArticle = (req, res, next) => {
-  console.log(req.body);
+  const requestLength = Object.keys(req.body).length;
   const { username, title, body, topic } = req.body;
   createAnArticle(username, title, body, topic)
     .then(article => {
-      res.status(201).send({ article: article[0] });
+      if (
+        username === undefined ||
+        title === undefined ||
+        body === undefined ||
+        topic === undefined ||
+        requestLength !== 4
+      ) {
+        return Promise.reject({ status: 400, msg: "Invalid Input" });
+      } else {
+        res.status(201).send({ article: article[0] });
+      }
     })
     .catch(next);
 };
@@ -133,7 +143,7 @@ exports.deleteArticleById = (req, res, next) => {
       if (result === 1) {
         res.status(204).send();
       } else {
-        return Promise.reject({ ststus: 404, msg: "article_id not found" });
+        return Promise.reject({ status: 404, msg: "article_id not found" });
       }
     })
     .catch(next);

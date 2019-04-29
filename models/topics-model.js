@@ -9,7 +9,6 @@ exports.createATopic = (description, slug) => {
     description: description,
     slug: slug
   };
-  console.log(topicToInsert);
   return connection("topics")
     .insert(topicToInsert)
     .returning("*");

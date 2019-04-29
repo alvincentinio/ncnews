@@ -650,7 +650,7 @@ describe.only("/", () => {
           expect(body.msg).to.equal("Invalid Input");
         });
     });
-    it("POST - status(400) - /articles/:article_id/comments - invalid post body (no username)", () => {
+    it("POST - status(400) - /articles/:article_id/comments - invalid post body (no body)", () => {
       const newComment = {
         username: "butter_bridge",
         bod: "ddd"
@@ -673,7 +673,7 @@ describe.only("/", () => {
         .send(newComment)
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).to.equal("Invalid Username");
+          expect(body.msg).to.equal("Invalid Username or Topic");
         });
     });
     it("POST - status(400) - /articles/:article_id/comments - extra key(s) on post body", () => {
@@ -691,10 +691,175 @@ describe.only("/", () => {
         });
     });
   });
+  describe("/api/users/:username", () => {
+    it("GET - status(404) /api/users/:username - username doesnt exist", () => {
+      return request
+        .get("/api/users/xyz")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).to.eql("User Not Found");
+        });
+    });
+  });
+  describe("/api/articles", () => {
+    it("POST - status(200) /api/articles - responds with the correct article object", () => {
+      const newArticle = {
+        username: "butter_bridge",
+        title: "Hot Tubs",
+        body: "test body",
+        topic: "mitch"
+      };
+      return request
+        .post("/api/articles")
+        .send(newArticle)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.article).to.be.an("object");
+          expect(body.article).to.contain.keys(
+            "article_id",
+            "title",
+            "votes",
+            "topic",
+            "created_at",
+            "author"
+          );
+        });
+    });
+    it("POST - status(400) /api/articles - missing key(s) on post body", () => {
+      const newArticle = {
+        username: "butter_bridge",
+        title: "Hot Tubs",
+        body: "test body"
+      };
+      return request
+        .post("/api/articles")
+        .send(newArticle)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Invalid Input");
+        });
+    });
+    it("POST - status(400) /api/articles - extra key(s) on post body", () => {
+      const newArticle = {
+        username: "butter_bridge",
+        title: "Hot Tubs",
+        body: "test body",
+        topic: "mitch",
+        score: "25"
+      };
+      return request
+        .post("/api/articles")
+        .send(newArticle)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Invalid Input");
+        });
+    });
+    it("POST - status(404) /api/articles - username not in database", () => {
+      const newArticle = {
+        username: "not-a-username",
+        title: "Hot Tubs",
+        body: "test body",
+        topic: "mitch"
+      };
+      return request
+        .post("/api/articles")
+        .send(newArticle)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Invalid Username or Topic");
+        });
+    });
+    it("POST - status(404) /api/articles - topic not in database", () => {
+      const newArticle = {
+        username: "butter_bridge",
+        title: "Hot Tubs",
+        body: "test body",
+        topic: "not-a-topic"
+      };
+      return request
+        .post("/api/articles")
+        .send(newArticle)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Invalid Username or Topic");
+        });
+    });
+  });
+  describe("/api/articles/:articleId", () => {
+    it("DELETE - status(404) - /:articleId - for well-formed but non-existent articleId", () => {
+      return request
+        .delete("/api/articles/1000")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("article_id not found");
+        });
+    });
+    it("DELETE - status(400) - /:articleId - for a bad articleId", () => {
+      return request
+        .delete("/api/articles/xyz")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Invalid Input");
+        });
+    });
+  });
+  describe("/api/topics", () => {
+    it("POST - status(200) /api/topics - responds with the correct topic object", () => {
+      const newTopic = {
+        slug: "potatoes",
+        description: "test description"
+      };
+      return request
+        .post("/api/topics")
+        .send(newTopic)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.topic).to.be.an("object");
+          expect(body.topic).to.contain.keys("slug", "description");
+        });
+    });
+    it("POST - status(400) /api/topics - missing key(s) on post body", () => {
+      const newTopic = {
+        description: "test description"
+      };
+      return request
+        .post("/api/topics")
+        .send(newTopic)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Missing Or Duplicate Topic");
+        });
+    });
+    it("POST - status(400) /api/topics - extra key(s) on post body", () => {
+      const newTopic = {
+        description: "butter_bridge",
+        slug: "potatoes",
+        score: "25"
+      };
+      return request
+        .post("/api/topics")
+        .send(newTopic)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Invalid Input");
+        });
+    });
+    it("POST - status(404) /api/articles - slug/topic already exists in database", () => {
+      const newTopic = {
+        topic: "mitch",
+        description: "test description"
+      };
+      return request
+        .post("/api/topics")
+        .send(newTopic)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Missing Or Duplicate Topic");
+        });
+    });
+  });
 });
 
-// tests for POST /api/articles
-// tests for DELETE /api/articles/:articleId
-// tests for POST /api/topics
 // tests for POST /api/users
 // tests for GET /api/users - not done yet
