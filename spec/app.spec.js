@@ -18,7 +18,7 @@ describe.only("/", () => {
         .get("/api")
         .expect(200)
         .then(({ body }) => {
-          expect(body.ok).to.equal(true);
+          expect(body).to.be.an("object");
         });
     });
   });
@@ -826,9 +826,9 @@ describe.only("/", () => {
       return request
         .post("/api/topics")
         .send(newTopic)
-        .expect(404)
+        .expect(400)
         .then(({ body }) => {
-          expect(body.msg).to.equal("Missing Or Duplicate Topic");
+          expect(body.msg).to.equal("Invalid Input");
         });
     });
     it("POST - status(400) /api/topics - extra key(s) on post body", () => {
@@ -845,7 +845,7 @@ describe.only("/", () => {
           expect(body.msg).to.equal("Invalid Input");
         });
     });
-    it("POST - status(404) /api/articles - slug/topic already exists in database", () => {
+    it("POST - status(400) /api/topics - slug/topic already exists in database", () => {
       const newTopic = {
         topic: "mitch",
         description: "test description"
@@ -853,13 +853,70 @@ describe.only("/", () => {
       return request
         .post("/api/topics")
         .send(newTopic)
-        .expect(404)
+        .expect(400)
         .then(({ body }) => {
-          expect(body.msg).to.equal("Missing Or Duplicate Topic");
+          expect(body.msg).to.equal("Invalid Input");
+        });
+    });
+  });
+  describe("/api/users", () => {
+    it("GET - status(200) /api/users - responds with the correct user object", () => {
+      return request
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.users).to.be.an("array");
+          expect(body.users[0]).to.be.an("object");
+          expect(body.users[0]).to.contain.keys(
+            "username",
+            "avatar_url",
+            "name"
+          );
+        });
+    });
+    it("POST - status(200) /api/users - responds with the correct user object", () => {
+      const newUser = {
+        username: "potatoes",
+        avatar_url: "http://test.com",
+        name: "spud"
+      };
+      return request
+        .post("/api/users")
+        .send(newUser)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.user).to.be.an("object");
+          expect(body.user).to.contain.keys("username", "avatar_url", "name");
+        });
+    });
+    it("POST - status(400) /api/users - missing key(s) on post body", () => {
+      const newUser = {
+        username: "potatoes",
+        avatar_url: "http://test.com"
+      };
+      return request
+        .post("/api/users")
+        .send(newUser)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Invalid Input");
+        });
+    });
+    it("POST - status(400) /api/topics - extra key(s) on post body", () => {
+      const newTopic = {
+        description: "butter_bridge",
+        slug: "potatoes",
+        score: "25"
+      };
+      return request
+        .post("/api/topics")
+        .send(newTopic)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Invalid Input");
         });
     });
   });
 });
 
-// tests for POST /api/users
-// tests for GET /api/users - not done yet
+// check that avatar_url is a url - chai-url && regex to test http/https

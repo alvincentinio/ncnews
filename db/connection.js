@@ -8,10 +8,3 @@ const dbConfig =
 const connection = knex(dbConfig);
 
 module.exports = connection;
-
-// const knex = require("knex");
-// const dbConfig = require("../knexfile");
-
-// const connection = knex(dbConfig);
-
-// module.exports = connection;

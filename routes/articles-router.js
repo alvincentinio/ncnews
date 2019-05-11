@@ -9,7 +9,6 @@ const {
   deleteArticleById
 } = require("../controllers/articles-controller");
 const { methodNotAllowed } = require("../errors");
-const { routeNotFound } = require("../errors");
 
 articlesRouter
   .route("/")

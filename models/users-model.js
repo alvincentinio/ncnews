@@ -14,7 +14,6 @@ exports.createAUser = (username, avatar_url, name) => {
     avatar_url: avatar_url,
     name: name
   };
-  console.log(userToInsert);
   return connection("users")
     .insert(userToInsert)
     .returning("*");

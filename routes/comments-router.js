@@ -4,7 +4,6 @@ const {
   deleteCommentById
 } = require("../controllers/comments-controller");
 const { methodNotAllowed } = require("../errors");
-const { routeNotFound } = require("../errors");
 
 commentsRouter
   .route("/:commentId")

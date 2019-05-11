@@ -3,7 +3,6 @@ const apiRouter = require("./routes/api");
 const {
   routeNotFound,
   handle500,
-  methodNotAllowed,
   handlePsqlErrors,
   handleCustomErrors
 } = require("./errors");
@@ -15,7 +14,6 @@ app.use(express.json());
 app.use("/api", apiRouter);
 
 app.all("/*", routeNotFound);
-// app.use(methodNotAllowed);
 app.use(handlePsqlErrors);
 app.use(handleCustomErrors);
 app.use(handle500);
