@@ -1,7 +1,8 @@
 const {
   fetchUserById,
   createAUser,
-  fetchAllUsers
+  fetchAllUsers,
+  removeUserByUsername
 } = require("../models/users-model");
 
 exports.getUserById = (req, res, next) => {
@@ -30,6 +31,19 @@ exports.getAllUsers = (req, res, next) => {
   fetchAllUsers()
     .then(users => {
       res.status(200).send({ users });
+    })
+    .catch(next);
+};
+
+exports.deleteAUser = (req, res, next) => {
+  const { username } = req.body;
+  removeUserByUsername(username)
+    .then(result => {
+      if (result === 1) {
+        res.status(204).send();
+      } else {
+        return Promise.reject({ status: 404, msg: "Not Found" });
+      }
     })
     .catch(next);
 };

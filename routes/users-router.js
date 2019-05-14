@@ -2,7 +2,8 @@ const usersRouter = require("express").Router();
 const {
   getUserById,
   postAUser,
-  getAllUsers
+  getAllUsers,
+  deleteAUser
 } = require("../controllers/users-controller");
 const { methodNotAllowed } = require("../errors");
 
@@ -15,6 +16,7 @@ usersRouter
   .route("/")
   .get(getAllUsers)
   .post(postAUser)
+  .delete(deleteAUser)
   .all(methodNotAllowed);
 
 module.exports = usersRouter;

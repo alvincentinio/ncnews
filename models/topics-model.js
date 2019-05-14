@@ -13,3 +13,9 @@ exports.createATopic = (description, slug) => {
     .insert(topicToInsert)
     .returning("*");
 };
+
+exports.removeTopicBySlug = slug => {
+  return connection("topics")
+    .where("slug", "=", slug)
+    .del();
+};

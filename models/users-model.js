@@ -22,3 +22,9 @@ exports.createAUser = (username, avatar_url, name) => {
 exports.fetchAllUsers = () => {
   return connection.select("*").from("users");
 };
+
+exports.removeUserByUsername = username => {
+  return connection("users")
+    .where("username", "=", username)
+    .del();
+};

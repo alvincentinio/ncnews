@@ -1,4 +1,8 @@
-const { fetchAllTopics, createATopic } = require("../models/topics-model");
+const {
+  fetchAllTopics,
+  createATopic,
+  removeTopicBySlug
+} = require("../models/topics-model");
 
 exports.getAllTopics = (req, res, next) => {
   fetchAllTopics()
@@ -21,6 +25,19 @@ exports.postATopic = (req, res, next) => {
         return Promise.reject({ status: 400, msg: "Invalid Input" });
       } else {
         res.status(201).send({ topic: topic[0] });
+      }
+    })
+    .catch(next);
+};
+
+exports.deleteATopic = (req, res, next) => {
+  const { slug } = req.body;
+  removeTopicBySlug(slug)
+    .then(result => {
+      if (result === 1) {
+        res.status(204).send();
+      } else {
+        return Promise.reject({ status: 404, msg: "Not Found" });
       }
     })
     .catch(next);
