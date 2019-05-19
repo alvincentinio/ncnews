@@ -8,7 +8,8 @@ const {
   removeArticleById,
   checkAuthorExists,
   checkTopicExists,
-  checkArticleExists
+  checkArticleExists,
+  fetchArticleCount
 } = require("../models/articles-model");
 
 exports.getAllArticles = (req, res, next) => {
@@ -17,15 +18,19 @@ exports.getAllArticles = (req, res, next) => {
   if (author) checkExistsPromise = checkAuthorExists(author);
   else if (topic) checkExistsPromise = checkTopicExists(topic);
   const fetchAllArticlesPromise = fetchAllArticles(req.query);
-  Promise.all([checkExistsPromise, fetchAllArticlesPromise])
-    .then(([result, articles]) => {
+  Promise.all([
+    checkExistsPromise,
+    fetchAllArticlesPromise,
+    fetchArticleCount(author, topic)
+  ])
+    .then(([result, articles, total_count]) => {
       if (result && result.length === 0) {
         return Promise.reject({
           status: 404,
           msg: "Query Does Not Exist In Database"
         });
       } else {
-        res.status(200).send({ articles });
+        res.status(200).send({ total_count, articles });
       }
     })
     .catch(next);
@@ -148,3 +153,23 @@ exports.deleteArticleById = (req, res, next) => {
     })
     .catch(next);
 };
+
+// exports.getArticles = (req, res, next) => {
+//   const { author, topic } = req.query;
+//   const authorPromise = req.query.author ? selectUserByUsername(author) : null;
+//   const topicPromise = req.query.topic ? selectTopicBySlug(topic) : null;
+//   Promise.all([
+//     authorPromise,
+//     topicPromise,
+//     selectArticles(req.query),
+//     countArticles(req.query)
+//   ])
+//     .then(([author, topic, articles, articles_count]) => {
+//       if (!author && req.query.author)
+//         return Promise.reject({ code: 404, msg: 'author not found' });
+//       else if (!topic && req.query.topic)
+//         return Promise.reject({ code: 404, msg: 'topic not found' });
+//       else res.status(200).send({ articles_count, articles });
+//     })
+//     .catch(next);
+// };

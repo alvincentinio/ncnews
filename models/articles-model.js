@@ -22,6 +22,16 @@ exports.fetchAllArticles = ({ author, topic, sort_by, order, limit, p }) => {
     .limit(limit || 10)
     .offset(limit * (p - 1) || 10 * (p - 1) || 0);
 };
+exports.fetchArticleCount = (author, topic) => {
+  return connection
+    .select("*")
+    .from("articles")
+    .modify(query => {
+      if (author) query.where("articles.author", "=", author);
+      if (topic) query.where("topic", "=", topic);
+    })
+    .then(articles => articles.length);
+};
 
 exports.fetchArticleById = articleId => {
   return connection

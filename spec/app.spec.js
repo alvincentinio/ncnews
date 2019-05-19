@@ -401,14 +401,14 @@ describe.only("/", () => {
           expect(body.msg).to.equal("Method Not Allowed");
         });
     });
-    it("DELETE /api/topics - Status: 405 - handles Method Not Allowed when given an invalid method for route", () => {
-      return request
-        .delete("/api/topics")
-        .expect(405)
-        .then(({ body }) => {
-          expect(body.msg).to.equal("Method Not Allowed");
-        });
-    });
+    // it("DELETE /api/topics - Status: 405 - handles Method Not Allowed when given an invalid method for route", () => {
+    //   return request
+    //     .delete("/api/topics")
+    //     .expect(405)
+    //     .then(({ body }) => {
+    //       expect(body.msg).to.equal("Method Not Allowed");
+    //     });
+    // });
     it("PATCH /api/topics - Status: 405 - handles Method Not Allowed when given an invalid method for route", () => {
       return request
         .patch("/api/topics")
