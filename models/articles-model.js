@@ -1,6 +1,6 @@
 const connection = require("../db/connection");
 
-exports.fetchAllArticles = ({ author, topic, sort_by, order }) => {
+exports.fetchAllArticles = ({ author, topic, sort_by, order, limit, p }) => {
   return connection
     .select(
       "articles.article_id",
@@ -18,7 +18,9 @@ exports.fetchAllArticles = ({ author, topic, sort_by, order }) => {
     .modify(query => {
       if (author) query.where("articles.author", "=", author);
       if (topic) query.where("topic", "=", topic);
-    });
+    })
+    .limit(limit || 10)
+    .offset(limit * (p - 1) || 10 * (p - 1) || 0);
 };
 
 exports.fetchArticleById = articleId => {
@@ -47,13 +49,15 @@ exports.updateArticleVotesById = (articleId, inc_votes) => {
     .returning("*");
 };
 
-exports.fetchCommentsByArticleId = (articleId, sort_by, order) => {
+exports.fetchCommentsByArticleId = (articleId, sort_by, order, limit, p) => {
   return connection
     .select("comment_id", "votes", "created_at", "author", "body")
     .from("comments")
     .where("comments.article_id", "=", articleId)
     .orderBy(sort_by || "created_at", order || "desc")
-    .returning("*");
+    .returning("*")
+    .limit(limit || 10)
+    .offset(limit * (p - 1) || 10 * (p - 1) || 0);
 };
 
 exports.createCommentByArticleId = (articleId, username, body) => {

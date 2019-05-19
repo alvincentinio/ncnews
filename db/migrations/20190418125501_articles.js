@@ -5,9 +5,15 @@ exports.up = function(knex, Promise) {
     articlesTable.string("body", 5000).notNullable();
     articlesTable.integer("votes").defaultTo(0);
     articlesTable.string("topic");
-    articlesTable.foreign("topic").references("topics.slug");
+    articlesTable
+      .foreign("topic")
+      .references("topics.slug")
+      .onDelete("CASCADE");
     articlesTable.string("author");
-    articlesTable.foreign("author").references("users.username");
+    articlesTable
+      .foreign("author")
+      .references("users.username")
+      .onDelete("CASCADE");
     articlesTable.dateTime("created_at").defaultTo(knex.fn.now());
   });
 };
