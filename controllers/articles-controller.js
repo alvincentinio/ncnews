@@ -78,12 +78,14 @@ exports.patchArticleVotesById = (req, res, next) => {
 
 exports.getCommentsByArticleId = (req, res, next) => {
   const { articleId } = req.params;
-  const { sort_by, order } = req.query;
+  const { sort_by, order, limit, p } = req.query;
   const checkArticleExistsPromise = checkArticleExists(articleId);
   const fetchCommentsByArticleIdPromise = fetchCommentsByArticleId(
     articleId,
     sort_by,
-    order
+    order,
+    limit,
+    p
   );
   Promise.all([checkArticleExistsPromise, fetchCommentsByArticleIdPromise])
     .then(([result, comments]) => {
