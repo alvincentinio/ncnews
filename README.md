@@ -118,7 +118,7 @@ The API can now be accessed through localhost:9090 or by using a REST Client suc
 
 ## API Endpoints
 
-A JSON respresentation of all the available endpoints on the API can be found [here](https://alcrewe-news.herokuapp.com/api)
+A JSON representation of all the available endpoints on the API can be found [here](https://alcrewe-news.herokuapp.com/api)
 
 ## Running The Tests
 
