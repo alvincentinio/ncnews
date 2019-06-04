@@ -1,352 +1,226 @@
-# Northcoders News API
+# Northcoders NC News Project API
 
-## Background
+A RESTful API for a reddit-style website called Bogus News.
 
-We will be building the API to use in the Northcoders News Sprint during the Front End block of the course.
+Bogus News has a database of articles, each within a topic and created by a user. Logged-in users can like or dislike an article and comment on that article. Comments can also be liked or disliked. Users can create new topics and articles or delete their own articles and comments.
 
-Our database will be PSQL, and you will interact with it using [Knex](https://knexjs.org).
+The ncnews api is hosted on Heroku [here](https://alcrewe-news.herokuapp.com/api).
 
-## Step 1 - Setting Up the Project
+You can find the frontend GitHub repository [here](https://github.com/alvincentinio/bogusnews).
 
-We can use a project generator from `npm` to create some boilerplate code for our application.
+## Built With
 
-[Yo](https://www.npmjs.com/package/yo) is a framework for creating project generators, so we will need to install it, as well as the specific project generator we want to use: [Knexpress](https://www.npmjs.com/package/generator-knexpress).
+- JavaScript
+- [Node.js](https://nodejs.org/en/)
+- [PostgreSQL](https://www.postgresql.org/) - open-source relational database
+- [Express.js](https://expressjs.com/) (v4.16.4) - a web application framework for Node.js
+- [Knex.js](https://knexjs.org/) (v0.16.5) - SQL query builder used with Postgres
+- [node-postgres(pg)](https://node-postgres.com/) (v7.10.0) - a collection of node.js modules for interfacing with the PostgreSQL database
+- [nodemon](https://nodemon.io/) (v1.18.11)
 
-```bash
-npm i -g yo generator-knexpress
+## Tested With
+
+- [Chai](https://www.chaijs.com/) (v4.2.0) - testing assertion library for Node.js
+- [Mocha](https://mochajs.org/) (v6.1.3) - JavaScript testing framework running on Node.js
+- [Supertest](https://www.npmjs.com/package/supertest)(v4.0.2) - a library for testing Node.js http servers
+
+## Getting Started
+
+To run the API on your machine please follow the steps below.
+
+### Prerequisites
+
+You will need to check you have Node.js installed.
+
+```
+node -v
 ```
 
-Once installed, we can run the generator with `yo` to create the project:
+If not please follow the instructions at [Node.js](https://nodejs.org/en/). This will also install npm.
 
-```bash
-yo knexpress
+Also check you have [git](https://git-scm.com/downloads) installed
+
+```
+git --version
 ```
 
-After generating the project, familiarise yourself with the structure and scripts available. Then, copy the data from this repository over the appropriate place in your project.
+You will also need [PostgreSQL](https://www.postgresql.org/)
 
-## Step 2 - Seeding
+### Installing
 
-Data has been provided for both testing and development environments so you will need to write a seed function to insert the appropriate data into your database. You should think about how you will write your seed file to use either test data or dev data depending on the environment that you're running in.
+Clone this GitHub repository in the folder you want to install it
 
-You should have separate tables for topics, articles, users and comments, and you will need to think carefully about the order in which you seed your data.
-
-- Each topic should have:
-
-  - `slug` field which is a unique string that acts as the table's primary key
-  - `description` field which is a string giving a brief description of a given topic
-
-- Each user should have:
-
-  - `username` which is the primary key & unique
-  - `avatar_url`
-  - `name`
-
-- Each article should have:
-
-  - `article_id` which is the primary key
-  - `title`
-  - `body`
-  - `votes` defaults to 0
-  - `topic` field which references the slug in the topics table
-  - `author` field that references a user's primary key (username)
-  - `created_at` defaults to the current date
-
-- Each comment should have:
-
-  - `comment_id` which is the primary key
-  - `author` field that references a user's primary key (username)
-  - `article_id` field that references an article's primary key
-  - `votes` defaults to 0
-  - `created_at` defaults to the current date
-  - `body`
-
-- **NOTE:** psql expects `Date` types to be in a date format - not a timestamp! However, you can easily **turn a timestamp into a date using JS**...
-
----
-
-## Step 3 - Building Endpoints
-
-- Use proper project configuration from the offset, being sure to treat development and test differently.
-- Test each route **as you go**, checking both successful requests and the variety of errors you could expect to encounter.
-- After taking the happy path when testing a route, think about how a client could make it go wrong. Add a test for that situation, then error handling to deal with it gracefully.
-- **HINT**: You will need to take advantage of knex migrations in order to efficiently test your application.
-
----
-
-### Vital Routes
-
-Your server _must_ have the following endpoints:
-
-```http
-GET /api/topics
-
-GET /api/articles
-
-GET /api/articles/:article_id
-PATCH /api/articles/:article_id
-
-GET /api/articles/:article_id/comments
-POST /api/articles/:article_id/comments
-
-PATCH /api/comments/:comment_id
-DELETE /api/comments/:comment_id
-
-GET /api/users/:username
-
-GET /api
+```
+git clone https://github.com/alvincentinio/ncnews.git
 ```
 
----
+Create a file called knexfile.js and copy and paste this code into it
 
-### Route Requirements
+```
+const ENV = process.env.NODE_ENV || "development";
+const { DB_URL } = process.env;
 
-_**All of your endpoints should send the below responses in an object, with a key name of what it is that being sent. E.g.**_
+const baseConfig = {
+  client: "pg",
+  migrations: {
+    directory: "./db/migrations"
+  },
+  seeds: {
+    directory: "./db/seeds"
+  }
+};
 
-```json
-{
-  "topics": [
-    {
-      "description": "Code is love, code is life",
-      "slug": "coding"
-    },
-    {
-      "description": "FOOTIE!",
-      "slug": "football"
-    },
-    {
-      "description": "Hey good looking, what you got cooking?",
-      "slug": "cooking"
+const customConfigs = {
+  development: {
+    connection: {
+      database: "ncnews"
     }
-  ]
-}
+  },
+  test: {
+    connection: {
+      database: "ncnews_test"
+    }
+  },
+  production: {
+    connection: `${DB_URL}?ssl=true`
+  }
+};
+
+module.exports = { ...baseConfig, ...customConfigs[ENV] };
+
 ```
 
----
+Then install all dependencies
 
-```http
-GET /api/topics
+```
+npm i
 ```
 
-#### Responds with
+Start [PostgreSQL](https://www.postgresql.org/)
 
-- an array of topic objects, each of which should have the following properties:
-  - `slug`
-  - `description`
-
----
-
-```http
-GET /api/articles
+```
+brew services start postgresql
 ```
 
-#### Responds with
+In the terminal seed the development database
 
-- an `articles` array of article objects, each of which should have the following properties:
-  - `author` which is the `username` from the users table
-  - `title`
-  - `article_id`
-  - `topic`
-  - `created_at`
-  - `votes`
-  - `comment_count` which is the total count of all the comments with this article_id - you should make use of knex queries in order to achieve this
-
-#### Should accept queries
-
-- `author`, which filters the articles by the username value specified in the query
-- `topic`, which filters the articles by the topic value specified in the query
-- `sort_by`, which sorts the articles by any valid column (defaults to date)
-- `order`, which can be set to `asc` or `desc` for ascending or descending (defaults to descending)
-
----
-
-```http
-GET /api/articles/:article_id
+```
+npm seed-dev
 ```
 
-#### Responds with
+Now run the server locally
 
-- an article object, which should have the following properties:
-  - `author` which is the `username` from the users table
-  - `title`
-  - `article_id`
-  - `body`
-  - `topic`
-  - `created_at`
-  - `votes`
-  - `comment_count` which is the total count of all the comments with this article_id - you should make use of knex queries in order to achieve this
-
----
-
-```http
-PATCH /api/articles/:article_id
+```
+npm run dev
 ```
 
-#### Request body accepts
+The API can now be accessed through localhost:9090 or by using a REST Client such as [Insomnia](https://insomnia.rest/)
 
-- an object in the form `{ inc_votes: newVote }`
+## API Endpoints
 
-  - `newVote` will indicate how much the `votes` property in the database should be updated by
+A JSON respresentation of all the available endpoints on the API can be found [here](https://alcrewe-news.herokuapp.com/api)
 
-  e.g.
+## Running The Tests
 
-  `{ inc_votes : 1 }` would increment the current article's vote property by 1
-
-  `{ inc_votes : -100 }` would decrement the current article's vote property by 100
-
-#### Responds with
-
-- the updated article
-
----
-
-```http
-GET /api/articles/:article_id/comments
+```
+npm t
 ```
 
-#### Responds with
+# Hosting Your Own Version Using Heroku
 
-- an array of comments for the given `article_id` of which each comment should have the following properties:
-  - `comment_id`
-  - `votes`
-  - `created_at`
-  - `author` which is the `username` from the users table
-  - `body`
+## 1. Install the Heroku CLI
 
-#### Accepts queries
+On macOS:
 
-- `sort_by`, which sorts the articles by any valid column (defaults to created_at)
-- `order`, which can be set to `asc` or `desc` for ascending or descending (defaults to descending)
-
----
-
-```http
-POST /api/articles/:article_id/comments
+```bash
+brew tap heroku/brew && brew install heroku
 ```
 
-#### Request body accepts
+...or Ubuntu:
 
-- an object with the following properties:
-  - `username`
-  - `body`
-
-#### Responds with
-
-- the posted comment
-
----
-
-```http
-PATCH /api/comments/:comment_id
+```bash
+sudo snap install --classic heroku
 ```
 
-#### Request body accepts
+## 2. Create a Heroku App
 
-- an object in the form `{ inc_votes: newVote }`
+Log into Heroku using their command line interface:
 
-  - `newVote` will indicate how much the `votes` property in the database should be updated by
-
-  e.g.
-
-  `{ inc_votes : 1 }` would increment the current article's vote property by 1
-
-  `{ inc_votes : -1 }` would decrement the current article's vote property by 1
-
-#### Responds with
-
-- the updated comment
-
----
-
-```http
-DELETE /api/comments/:comment_id
+```bash
+heroku login
 ```
 
-#### Should
+Create an app in an active git directory. Doing this in the folder where your server exists is a good start, as this is what you will be hosting.
 
-- delete the given comment by `comment_id`
-
-#### Responds with
-
-- status 204 and no content
-
----
-
-```http
-GET /api/users/:username
+```bash
+heroku create your-app-name
 ```
 
-#### Responds with
+Here `your-app-name` should be the name you want to give your application. If you don't specify an app name, you'll get a random one which can sometimes be a bit iffy.
 
-- a user object which should have the following properties:
-  - `username`
-  - `avatar_url`
-  - `name`
+This command will both create an app on Heroku for your account. It will also add a new `remote` to your git repository.
+Check this by looking at your git remotes:
 
-# STOP!
-
-If you have reached this point, let someone on the teaching team know. One of us will be able to take a look at your code and give you some feedback. While we are looking at your code, you can continue with the following:
-
-# Continue...
-
----
-
-```http
-GET /api
+```bash
+git remote -v
 ```
 
-#### Responds with
+## 3. Push Your code up to Heroku
 
-- JSON describing all the available endpoints on your API
-
----
-
-### Step 3 - Hosting
-
-Make sure your application and your database is hosted using Heroku
-
-### Step 4 - README
-
-Write a README for your project. Check out this [guide](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2) for what sort of things should be included.
-
-It should also include the link to where your Heroku app is hosted.
-
-Take a look at GitHub's guide for [mastering markdown](https://guides.github.com/features/mastering-markdown/) for making it look pretty!
-
-### Optional Extras
-
-#### Pagination
-
-To make sure that an API can handle large amounts of data, it is often necessary to use **pagination**. Head over to [Google](https://www.google.co.uk/search?q=cute+puppies), and you will notice that the search results are broken down into pages. It would not be feasible to serve up _all_ the results of a search in one go. The same is true of websites / apps like Facebook or Twitter (except they hide this by making requests for the next page in the background, when we scroll to the bottom of the browser). We can implement this functionality on our `/api/articles` and `/api/comments` endpoints.
-
-```http
-GET /api/articles
+```bash
+git push heroku master
 ```
 
-- Should accepts the following queries:
-  - `limit`, which limits the number of responses (defaults to 10)
-  - `p`, stands for page which specifies the page at which to start (calculated using limit)
-- add a `total_count` property, displaying the total number of articles (**this should display the total number of articles with any filters applied, discounting the limit**)
+## 4. Creating a Hosted Database
 
----
+Go to the heroku site and log in.
 
-```http
-GET /api/articles/:article_id/comments
+- Select your application
+- `Configure Add-ons`
+- Choose `Heroku Postgres`
+
+The free tier will be adequate for our purposes. This will provide you with a `postgreSQL` pre-created database!
+
+Check that the database exists. Click `settings` on it, and view the credentials. Keep an eye on the URI. Don't close this yet!
+
+## 5. Seeding the Production Database
+
+Check that your database's url is added to the environment variables on Heroku:
+
+```bash
+heroku config:get DATABASE_URL
 ```
 
-Should accept the following queries:
+If you are in your app's directory, and the database is correctly linked as an add on to Heroku, it should display a DB URI string that is exactly the same as the one in your credentials.
 
-- `limit`, which limits the number of responses (defaults to 10)
-- `p`, stands for page which specifies the page at which to start (calculated using limit)
+Make sure to **run the seed prod script** from your `package.json`:
 
-#### More Routes
-
-```http
-POST /api/articles
-
-DELETE /api/articles/:article_id
-
-POST /api/topics
-
-POST /api/users
-GET /api/users
+```bash
+npm run seed:prod
 ```
+
+Commit your changes, and push to heroku master.
+
+```bash
+git push heroku master
+```
+
+## 6. Review Your App
+
+```bash
+heroku open
+```
+
+Any issues should be debugged with:
+
+```bash
+heroku logs --tail
+```
+
+## Author
+
+- **Alistair Crewe**
+
+## Acknowledgments
+
+Thanks to all the tutors and staff at Northcoders Manchester.
