@@ -828,7 +828,7 @@ describe.only("/", () => {
         .send(newTopic)
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).to.equal("Duplicate Topic");
+          expect(body.msg).to.equal("Invalid Input");
         });
     });
     it("POST - status(400) /api/topics - extra key(s) on post body", () => {
@@ -855,7 +855,7 @@ describe.only("/", () => {
         .send(newTopic)
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).to.equal("Duplicate Topic");
+          expect(body.msg).to.equal("Invalid Input");
         });
     });
   });
@@ -899,7 +899,7 @@ describe.only("/", () => {
         .send(newUser)
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).to.equal("Duplicate Topic");
+          expect(body.msg).to.equal("Invalid Input");
         });
     });
     it("POST - status(400) /api/users -  duplicate username", () => {
@@ -913,7 +913,7 @@ describe.only("/", () => {
         .send(newUser)
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).to.equal("Duplicate Username");
+          expect(body.msg).to.equal("Duplicate Username or Topic");
         });
     });
     it("POST - status(400) /api/topics - extra key(s) on post body", () => {
