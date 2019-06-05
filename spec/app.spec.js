@@ -828,7 +828,7 @@ describe.only("/", () => {
         .send(newTopic)
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).to.equal("Invalid Input");
+          expect(body.msg).to.equal("Duplicate Topic");
         });
     });
     it("POST - status(400) /api/topics - extra key(s) on post body", () => {
@@ -855,7 +855,7 @@ describe.only("/", () => {
         .send(newTopic)
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).to.equal("Invalid Input");
+          expect(body.msg).to.equal("Duplicate Topic");
         });
     });
   });
@@ -899,7 +899,21 @@ describe.only("/", () => {
         .send(newUser)
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).to.equal("Invalid Input");
+          expect(body.msg).to.equal("Duplicate Topic");
+        });
+    });
+    it("POST - status(400) /api/users -  duplicate username", () => {
+      const newUser = {
+        username: "butter_bridge",
+        name: "Jess",
+        avatar_url: "http://test.com"
+      };
+      return request
+        .post("/api/users")
+        .send(newUser)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Duplicate Username");
         });
     });
     it("POST - status(400) /api/topics - extra key(s) on post body", () => {
@@ -918,5 +932,3 @@ describe.only("/", () => {
     });
   });
 });
-
-// check that avatar_url is a url - chai-url && regex to test http/https

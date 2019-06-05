@@ -11,8 +11,8 @@ exports.handlePsqlErrors = (err, req, res, next) => {
     "22P02": { status: 400, msg: "Invalid Input" },
     "42703": { status: 400, msg: "sort_by parameter doesn't exist" },
     "23503": { status: 404, msg: "Invalid Username or Topic" },
-    "23505": { status: 404, msg: "Duplicate Topic" },
-    "23502": { status: 400, msg: "Invalid Input" }
+    "23505": { status: 400, msg: "Duplicate Username" },
+    "23502": { status: 400, msg: "Duplicate Topic" }
   };
   if (psqlCodes[err.code]) {
     res
