@@ -10,7 +10,6 @@ You can find the frontend GitHub repository [here](https://github.com/alvincenti
 
 ## Built With
 
-- JavaScript
 - [Node.js](https://nodejs.org/en/)
 - [PostgreSQL](https://www.postgresql.org/) - open-source relational database
 - [Express.js](https://expressjs.com/) (v4.16.4) - a web application framework for Node.js
